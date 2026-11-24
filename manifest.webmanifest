@@ -7,7 +7,7 @@
   "background_color": "#f6f7fb",
   "theme_color": "#674cf4",
   "lang": "zh-CN",
-  "description": "HR Fluent V16.5：HR 职场英语词库、闪卡、情景对话、学习足迹横向筛选和本机进度保存。",
+  "description": "HR Fluent V16.6：修复换一组轮换新词，日目标达成后仍可继续学习；包含 541 个 HR 术语与本地学习记录。",
   "icons": [
     {
       "src": "./icon-192.png",

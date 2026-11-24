@@ -1,5 +1,5 @@
-// HR Fluent V16.5 - navigation network-first and recoverable manual update.
-const CACHE='hr-fluent-v16-5-production-20261124';
+// HR Fluent V16.6 - navigation network-first and recoverable manual update.
+const CACHE='hr-fluent-v16-6-production-20261124';
 const APP_FILES=['./','./index.html','./manifest.webmanifest','./hr-fluent-icon.svg','./apple-touch-icon.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(
  caches.open(CACHE).then(c=>c.addAll(APP_FILES)).then(()=>self.skipWaiting())
