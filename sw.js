@@ -1,7 +1,7 @@
-const CACHE='hr-fluent-v17-1-production-20261125';
+const CACHE='hr-fluent-v17-2-production-20261125';
 const ROOT=new URL('./',self.location.href);const HOME=new URL('index.html',ROOT).href;
-const CORE=['index.html','app-v17-1.js','update-v17-1.js'].map(x=>new URL(x,ROOT).href);
-self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE);await c.addAll(CORE.map(u=>new Request(u,{cache:'reload'})));const h=await c.match(HOME);if(!(await h.text()).includes('name="hr-fluent-build" content="17.1"'))throw Error('deployment incomplete');await self.skipWaiting()})()));
+const CORE=['index.html','app-v17-2.js','update-v17-2.js'].map(x=>new URL(x,ROOT).href);
+self.addEventListener('install',e=>e.waitUntil((async()=>{const c=await caches.open(CACHE);await c.addAll(CORE.map(u=>new Request(u,{cache:'reload'})));const h=await c.match(HOME);if(!(await h.text()).includes('name="hr-fluent-build" content="17.2"'))throw Error('deployment incomplete');await self.skipWaiting()})()));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('message',e=>{if(e.data?.type==='SKIP_WAITING')self.skipWaiting()});
 self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==ROOT.origin||!u.pathname.startsWith(ROOT.pathname))return;
