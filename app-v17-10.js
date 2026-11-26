@@ -12,7 +12,7 @@ function ipaView(w,mini=false){
  </div>`;
 }
 function phraseView(w){return `<div class="phrase-translation"><span class="phrase-kicker">常用短语 · 中英对照</span><b>${h(w.collocation||w.term)}</b><small>中文：${h(w.collocationZh||w.zh)}</small>${w.collocationReview==='语义匹配'?'<em class="phrase-note">语义匹配译法，建议结合公司用语核对</em>':''}</div>`}
-function speakAccent(id,accent){let w=byId(id);if(!w)return;speechStop();tts(w.speakTerm||w.term,accent==='UK'?'en-GB':'en-US')}
+function speakAccent(id,accent){let w=byId(id);if(!w)return;speechStop();tts(w.term,accent==='UK'?'en-GB':'en-US','word')}
 
 function hashText(str){let hash=2166136261;for(const ch of String(str)){hash=Math.imul(hash^ch.charCodeAt(0),16777619)}return hash>>>0}
 function byId(id){return DB.words.find(x=>x.id===id)};
@@ -105,8 +105,20 @@ let roleRecognizer=null;function speechStop(){
  if(window.speechSynthesis)window.speechSynthesis.cancel();
 }
 
-function tts(text,locale='en-US'){if(!window.speechSynthesis){toast('当前环境不支持朗读，请通过 Safari 或 Chrome 打开');return}const utter=new SpeechSynthesisUtterance(text);utter.lang=locale;utter.rate=Number(STORE.rate)||1;utter.pitch=1;let vs=window.speechSynthesis.getVoices();let lang=locale.toLowerCase();let voice=vs.find(v=>v.lang.replace('_','-').toLowerCase()===lang&&/premium|enhanced|samantha|ava|aria|jenny|daniel|serena/i.test(v.name))||vs.find(v=>v.lang.replace('_','-').toLowerCase()===lang)||null;if(!voice){toast(locale==='en-GB'?'设备未提供英式语音，请安装英语（英国）语音包':'设备未提供美式语音，请安装英语（美国）语音包');return}if(voice)utter.voice=voice;utter.onerror=()=>{toast('当前设备暂无可用的'+(locale==='en-GB'?'英式':'美式')+'语音包')};window.speechSynthesis.speak(utter)}
-function playWord(id){let w=byId(id);if(!w)return;speechStop();if(!OFFLINE_AUDIO){tts(w.speakTerm||w.term);return}const audio=new Audio('audio/words/'+encodeURIComponent(id)+'.mp3');currentAudio=audio;audio.playbackRate=Number(STORE.rate)||1;audio.onerror=()=>{if(currentAudio===audio){currentAudio=null;tts(w.speakTerm||w.term)}};let p=audio.play();if(p&&p.catch)p.catch(()=>{if(currentAudio===audio){currentAudio=null;tts(w.speakTerm||w.term)}})}
+// Shared speech policy: exact input, locale-specific voice, neutral prosody.
+function makeSpeech(text,locale='en-US',kind='sentence'){
+ const synth=window.speechSynthesis;if(!synth||!window.SpeechSynthesisUtterance)return null;
+ const voices=synth.getVoices().filter(v=>v.lang.replace(/_/g,'-').toLowerCase()===locale.toLowerCase());
+ const score=v=> (/premium|enhanced|natural|neural/i.test(v.name)?100:0)+(/samantha|ava|allison|susan|jenny|aria|guy|evan|google us english/i.test(v.name)?20:0)+(v.localService?5:0);
+ const voice=voices.sort((a,b)=>score(b)-score(a))[0];if(!voice)return null;
+ const u=new SpeechSynthesisUtterance(text);u.lang=locale;u.voice=voice;
+ const speed=Number(STORE.rate);u.rate=Math.max(.5,Math.min(1.5,(Number.isFinite(speed)&&speed>0?speed:1)*(kind==='word'?.90:.96)));u.pitch=1;u.volume=1;return u;
+}
+function tts(text,locale='en-US',kind='sentence'){
+ const u=makeSpeech(text,locale,kind);if(!u){toast('语音尚未就绪，请安装对应英语语音包后重试');return}
+ u.onerror=e=>{if(!['canceled','interrupted'].includes(e.error))toast('语音播放失败，请重试')};try{window.speechSynthesis.speak(u)}catch(e){toast('语音播放失败，请重试')}
+}
+function playWord(id){let w=byId(id);if(!w)return;speechStop();if(!OFFLINE_AUDIO){tts(w.term,'en-US','word');return}const audio=new Audio('audio/words/'+encodeURIComponent(id)+'.mp3');currentAudio=audio;audio.playbackRate=Number(STORE.rate)||1;audio.onerror=()=>{if(currentAudio===audio){currentAudio=null;tts(w.term,'en-US','word')}};let p=audio.play();if(p&&p.catch)p.catch(()=>{if(currentAudio===audio){currentAudio=null;tts(w.term,'en-US','word')}})}
 function playScene(id){
  const s=DB.scenarios.find(x=>x.id===id);if(!s)return;
  if(!window.speechSynthesis){toast('当前环境不支持语音播放，请通过 Safari 或 Chrome 访问');return}
@@ -127,10 +139,8 @@ function playSceneLine(nonce){
  const s=DB.scenarios.find(x=>x.id===scenePlayer.id);
  if(!s)return;
  if(scenePlayer.index>=s.lines.length){scenePlayer.status='finished';updateScenePlayerUI();return}
- const utter=new SpeechSynthesisUtterance(s.lines[scenePlayer.index].en);
- utter.lang='en-US';utter.rate=Number(STORE.rate)||1;utter.pitch=1;
- const vs=window.speechSynthesis.getVoices();
- utter.voice=vs.find(v=>v.lang.toLowerCase()==='en-us')||vs.find(v=>v.lang.toLowerCase().startsWith('en'))||null;
+ const utter=makeSpeech(s.lines[scenePlayer.index].en,'en-US','sentence');
+ if(!utter){scenePlayer.status='paused';updateScenePlayerUI();toast('美式语音尚未就绪，请安装英语（美国）语音包后重试');return}
  utter.onend=()=>{
   if(scenePlayer.nonce!==nonce||scenePlayer.status!=='playing')return;
   scenePlayer.index++;updateScenePlayerUI();
@@ -421,7 +431,7 @@ if(oral.mode==='history')return top+`<div class="surface">${d.history.filter(x=>
 if(!r&&!(oral.mode==='test'&&q))return top+'<div class="empty">当前范围暂无表达，请切换范围。</div>';
 if(oral.mode==='test'){if(!q)return top+`<div class="surface hr-stack"><h2>口语理解检验</h2><p>随机抽取 ${Math.min(10,pool.length)} 条，支持听力和英文理解。</p><button class="primary" data-action="oralStart:text">英文理解</button><button class="secondary" data-action="oralStart:listen">听力检验</button></div>`;if(q.i>=q.items.length)return top+`<div class="surface"><h2>检验完成</h2><p>答对 ${q.correct}/${q.items.length}</p><button class="primary" data-action="oralMode:test">再练一次</button></div>`;let x=q.items[q.i];return top+`<div class="surface hr-stack"><p>第 ${q.i+1}/${q.items.length} 题</p><h2>${q.type==='listen'?'听音选择中文':h(x.r.en)}</h2><button class="secondary" data-action="oralHear:${x.r.id}">播放美音</button>${x.opts.map((v,i)=>`<button class="quiz-option ${x.chosen!==null?(v===x.r.zh?'correct':i===x.chosen?'wrong':''):''}" data-action="oralAnswer:${i}" ${x.chosen!==null?'disabled':''}>${h(v)}</button>`).join('')}${x.chosen!==null?`<div class="quiz-explain">${h(x.r.en)}<br>${h(x.r.zh)}</div><button class="primary" data-action="oralNextQ">下一步</button>`:''}</div>`}
 return top+`<div class="surface hr-stack"><span class="tag lav">${h(r.cat)} · ${oral.index+1}/${pool.length}</span>${oral.mode==='learn'?`<h2>${h(r.en)}</h2><p>${h(r.zh)}</p><button class="secondary" data-action="oralHear:${r.id}">听美音</button>`:`<h2>${h(r.zh)}</h2><p class="muted">先尝试用英语表达，可使用系统键盘听写。</p><textarea id="oralInput" rows="3" placeholder="输入你的英文表达" style="width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--text)"></textarea><button class="secondary" data-action="oralReveal">查看参考表达</button><div id="oralReference" hidden><b>${h(r.en)}</b><p>请对照语义与用词，自行判断；不提供自动发音评分。</p><button class="secondary" data-action="oralHear:${r.id}">听参考美音</button></div>`}<button class="secondary" data-action="oralFav:${r.id}">${d.favorites.includes(r.id)?'♥ 已收藏':'♡ 收藏表达'}</button><button class="primary" data-action="oralLearn:${r.id}">标记已学并继续</button><div class="update-buttons"><button class="secondary" data-action="oralMove:-1">上一条</button><button class="secondary" data-action="oralMove:1">下一条</button></div></div>`}
-function oralSpeak(text){const synth=window.speechSynthesis;if(!synth||!window.SpeechSynthesisUtterance){toast('当前浏览器不支持语音播放');return}const voices=synth.getVoices().filter(v=>v.lang.replace('_','-').toLowerCase()==='en-us');const voice=voices.find(v=>v.localService&&/premium|enhanced/i.test(v.name))||voices.find(v=>v.localService)||voices[0];if(!voice){toast('美式语音尚未就绪，请安装英语（美国）语音包后重试');return}const spoken=text.replace(/401\(k\)/gi,'four oh one K').replace(/\bKPIs\b/g,'K P I s').replace(/\bKPI\b/g,'K P I').replace(/\bQ3\b/g,'Q three');const u=new SpeechSynthesisUtterance(spoken);u.lang='en-US';u.voice=voice;u.rate=Number(STORE.rate)||1;u.pitch=1;u.onerror=e=>{if(!['canceled','interrupted'].includes(e.error))toast('美音播放失败，请重试')};synth.speak(u)}
+function oralSpeak(text){tts(text,'en-US','sentence')}
 function oralAction(a){let [op,k]=a.split(':');if(!op.startsWith('oral'))return false;let d=oralData(),r=SPOKEN.find(x=>x.id===k);if(op==='oralHear'){if(r){speechStop();oralSpeak(r.en)}return true}if(op==='oralReveal'){document.getElementById('oralReference').hidden=false;return true}if(op==='oralCat'||op==='oralScope'||op==='oralMode'){speechStop();oral[op==='oralCat'?'cat':op==='oralScope'?'scope':'mode']=k;oral.index=0;oral.q=null}else if(op==='oralMove'){oral.index=(oral.index+Number(k)+oralPool().length)%Math.max(1,oralPool().length)}else if(op==='oralFav'&&r){d.favorites=d.favorites.includes(k)?d.favorites.filter(x=>x!==k):[...d.favorites,k];save();oral.index=Math.min(oral.index,Math.max(0,oralPool().length-1))}else if(op==='oralLearn'&&r){if(!d.seen.includes(k))d.seen.push(k);save();oral.index=(oral.index+1)%Math.max(1,oralPool().length)}else if(op==='oralStart'){oral.q={type:k,i:0,correct:0,items:shuffleQuizWords(oralPool()).slice(0,10).map(r=>({r,chosen:null,opts:shuffleQuizWords([r.zh,...shuffleQuizWords(SPOKEN.filter(x=>x.zh!==r.zh)).slice(0,3).map(x=>x.zh)])}))}}else if(op==='oralAnswer'){let q=oral.q,x=q?.items[q.i];if(!x||x.chosen!==null)return true;x.chosen=Number(k);if(x.opts[x.chosen]===x.r.zh){q.correct++;delete d.wrong[x.r.id]}else d.wrong[x.r.id]=(d.wrong[x.r.id]||0)+1;save()}else if(op==='oralNextQ'){let q=oral.q;if(q?.items[q.i]?.chosen===null)return true;if(q.i<q.items.length){q.i++;if(q.i===q.items.length){d.history.push({date:new Date().toLocaleString(),correct:q.correct,total:q.items.length,cat:oral.cat,scope:oral.scope,type:q.type});save()}}}render();return true}
 
 window.hrBoot(85,"正在恢复学习记录并绘制界面…");
