@@ -1,7 +1,7 @@
 const ROOT=new URL('./',self.location.href);
 if (!['/hr-fluent/','/hr-fluent-staging/','/hr-fluent-dev/'].includes(ROOT.pathname)) throw Error('Unsupported deployment path');
 const PREFIX='hrf-scope:'+encodeURIComponent(ROOT.pathname)+':';
-const CACHE=PREFIX+'hr-fluent-v18-1-2-release-20261126';
+const CACHE=PREFIX+'hr-fluent-v18-1-7-release-20261127';
 const HOME=new URL('index.html',ROOT).href;
 const CORE=['index.html','app-v17-10.js','update-v17-10.js','manifest.webmanifest','apple-touch-icon.png','hr-fluent-icon.svg','icon-192.png','icon-512.png'].map(x=>new URL(x,ROOT).href);
 self.addEventListener('install',e=>e.waitUntil((async()=>{
@@ -10,7 +10,7 @@ self.addEventListener('install',e=>e.waitUntil((async()=>{
  const h=await c.match(HOME);
  if(!h)throw Error('deployment incomplete');
  const html=await h.text();
- if(!html.includes('name="hr-fluent-build" content="18.1.2"')||!html.includes('name="hr-fluent-build-id" content="hr-fluent-v18-1-2-release-20261126"'))throw Error('deployment incomplete or build mismatch');
+ if(!html.includes('name="hr-fluent-build" content="18.1.7"')||!html.includes('name="hr-fluent-build-id" content="hr-fluent-v18-1-7-release-20261127"'))throw Error('deployment incomplete or build mismatch');
  await self.skipWaiting();
 })()));
 self.addEventListener('activate',e=>e.waitUntil((async()=>{
