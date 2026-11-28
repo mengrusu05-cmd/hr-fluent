@@ -1,5 +1,5 @@
 {
-  "version": "18.1.9",
-  "build": "hr-fluent-v18-1-9-release-20261128",
-  "notes": "词条五栏内容归属重整，双语与收藏操作集中展示"
+  "version": "18.2.0",
+  "build": "hr-fluent-v18-2-0-release-20261128",
+  "notes": "650 个词条语言审校，新增独立双语拓展短句与专项辨析"
 }

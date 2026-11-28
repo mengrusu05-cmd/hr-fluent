@@ -1,7 +1,7 @@
 const fs=require('fs'),assert=require('assert');
 const html=fs.readFileSync(__dirname+'/index.html','utf8');
 const sw=fs.readFileSync(__dirname+'/sw.js','utf8');
-const update=fs.readFileSync(__dirname+'/update-v17-10.js','utf8');
+const update=fs.readFileSync(__dirname+'/update-v18-2.js','utf8');
 const version=JSON.parse(fs.readFileSync(__dirname+'/version.json','utf8'));
 assert(html.includes('name="hr-fluent-build-id" content="'+version.build+'"'));
 assert(update.includes("BUILD='"+version.build+"'"));

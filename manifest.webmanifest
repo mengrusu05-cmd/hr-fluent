@@ -1,1 +1,31 @@
-{"name": "HR Fluent｜HR 职场英语知识库", "short_name": "HR Fluent", "start_url": "./index.html", "scope": "./", "display": "standalone", "background_color": "#f6f7fb", "theme_color": "#674cf4", "lang": "zh-CN", "description": "HR Fluent V18.1.9：快速启动、学习进度本机保存及版本更新。", "icons": [{"src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"}, {"src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}, {"src": "./hr-fluent-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}]}
+{
+  "name": "HR Fluent｜HR 职场英语知识库",
+  "short_name": "HR Fluent",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#674cf4",
+  "lang": "zh-CN",
+  "description": "HR Fluent V18.2：650 个 HR 职场词条，中英对照学习，支持本机保存和离线访问。",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./hr-fluent-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
