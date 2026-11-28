@@ -1,5 +1,5 @@
 {
-  "version": "18.1.7",
-  "build": "hr-fluent-v18-1-7-release-20261127",
-  "notes": "学习范围默认折叠，展开后完整宽度显示设置，确认后收起。"
+  "version": "18.1.9",
+  "build": "hr-fluent-v18-1-9-release-20261128",
+  "notes": "词条五栏内容归属重整，双语与收藏操作集中展示"
 }
