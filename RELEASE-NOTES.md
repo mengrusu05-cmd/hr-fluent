@@ -1,3 +1,8 @@
+# V18.2.2
+
+移除词条音标区及设置页冗长发音说明，保留音标、播放功能及原始审校数据。
+10项非浏览器检查及3项JS语法检查通过；未运行浏览器测试。
+
 # HR Fluent V18.2.0 发布报告
 
 **制品** `hr-fluent-v18-2-0-release-20261128`  
@@ -35,3 +40,8 @@
 发布前保存 V18.1.9 制品。需要回滚时，在原域名和挂载路径恢复该制品的入口、资源、Service Worker 和版本文件，验证原存储键及离线缓存。若用户已在 V18.2 新增对话句子收藏，回滚前建议同时导出 V18.2 学习备份。旧版本无法展示新增的对话句子 ID，V18.2 可再次读取这些 ID。
 
 此次交付已在本地封装和验证。正式线上仓库及站点未发布。
+
+## V18.2.1
+- Empty voice list: attempt locale-based native synthesis without explicit voice.
+- Speech errors no longer trigger toast; scene failures pause.
+- Ten Node checks and three JS syntax checks passed; real device audio not verified.

@@ -1,9 +1,9 @@
 
-/* HR Fluent V18.2.0: network preflight + cache-safe installed app update flow.
+/* HR Fluent V18.2.2: network preflight + cache-safe installed app update flow.
    Important: never delete localStorage, IndexedDB, or user progress. */
 (function(){
  'use strict';
- const CURRENT='18.2.0', BUILD='hr-fluent-v18-2-0-release-20261128';
+ const CURRENT='18.2.2', BUILD='hr-fluent-v18-2-2-release-20261128';
  const SECURE=location.protocol==='https:'||location.hostname==='localhost';
  const MARKER='hr-fluent-build';
  const LAST_ATTEMPT='hr-fluent-last-update-attempt:'+new URL('./',location.href).pathname;
